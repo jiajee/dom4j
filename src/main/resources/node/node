@@ -1,0 +1,120 @@
+xml作用：保存数据；读取数据
+
+1.什么是解析xml?
+	系统最终会从xml中读取数据.读取的过程就是解析.
+	CRUD => 增删改查 => create read update delete => 解析指的就是读.
+2.什么是解析器?
+	就是用来解析xml的类.
+	过滤器,拦截器,监听器....都是具备相应功能的java类而已.
+3.两个常见的解析xml的思路!.
+思想:	
+	DOM:将文档中所有内容都封装成对象.读取时,将所有对象都加载到内存中.在内存中创建一颗dom树(记录对象间的关系).
+		优点: 方便的进行增删改查.
+		缺点: 会非常消耗内存.
+	sax:事件驱动的.与pull解析类似.把xml文档的 读取过程,划分出5类事件.我们只要提供遇到每类事件做什么的锦囊即可.
+		优点:内存占用小.
+		缺点: 不能进行增删改的操作.
+	
+1.DOM解析是由w3c推荐提出的.Document  Object 
+	DOM要求解析器把真个XML文档装载到一个Document对象中，即使使用DOM解析器解析XML文档的结果就是一个
+	Document对象。
+	一个XML文档解析后对应一个Document对象，可以通过Document对象获取根元素，然后在通过根元素获取根
+	元素的子元素..，这说明DOM解析方式保留了一个元素之间的结构关系（DOM树）：
+		优点：元素与元素之间结构关系保留了下来；
+		缺点：如果XML文档过大，那么把整个XML文档装载进内存，可能会出现内存溢出的现象。
+	
+2.Sax解析是由民间提出的.Simple API for xml parser
+	接口的实现由我们来完成，然后我们需要把接口实现类对象“交给”SAX解析器，然后燃SAX开始解析。SAX会在特定
+	时间发生时，调用接口中的方法，完成我们价格它的任务。
+		优点：适合解析大XML文件（内存空间占用小），因为是解析一行处理一行，处理完了就不需要在保留
+		数据了。
+		缺点：以为是解析一行处理一行，解析之后数据就丢失，所以元素与元素之间的结构关系没有保留下来（只能从新查找操作）
+
+	DOM:
+		把所有内容封装成了5类对象.
+			document
+			Element
+			Attribute
+			Text
+			Commons
+			共同的父类
+			node
+			NOde的属性:
+				自身属性:
+					nodeType
+					nodeName
+					nodeValue
+				导航属性
+					找子节点的:firstChild lastChild childNodes
+					找父节点的:parentNode
+					找兄弟节点:nextSibling previousSibling
+		获得Element的方式
+			getElementById           ==> Document
+			getELementsByTagName     ==> Document/Element
+			getELementsByClassName   ==> Document/Element
+			getElementsByName        ==> Document
+		对于增删改的操作:
+			创建一个元素: document.createElement
+			添加一个元素: element.appendChild ,element.insertBefore
+			替换一个元素: element.replaceChild
+			删除一个元素: element.removeChild
+
+JAXP ==> JDK提供的 ==> java api for xml parser
+	思想在java中的体现是接口.
+	我们要开发的话需要接口的实现类.
+	由各大解析器厂商提供实现接口的类.
+	
+	
+	A a  = new AImpl(); // Aimpl2;
+	A a  = new AImpl2();
+//---上面的切换实现类的方式,需要该源代码,太过原始-----
+	A a = JAXP.getXXX();==> 配置文件 ==> 我们通过修改配置文件就可以实现切换实现类.
+	
+	//反射.泛型.
+	
+//------------------------------------------------------------------------------------------
+3.DOM4J ==> 框架 ==>  
+Dom for java
+DOM4J
+//-------------------------------------------------------------------------------------------
+DOM4J 整合两种思想.(SAX DOM)的思想.
+	使用sax的思想做读取xml.
+	又参照dom的思想,也在内存中创建了一颗对象关系树. 我们在学习的时候,参照之前我们学习的dom树即可.
+	Dom4j是一个简单、灵活开放源代码的库Dom4j是由早期开发JDOM的人独立开发的。与JDOM不同的是，dom4j使用接口和
+	抽象基类，虽然Dom4j的复制一些，但它提供比JDOM更好的灵活性，JDOM&DOM4J
+
+	代码顺序：
+	a.Document对象获取
+	b.节点相关操作
+	c.属性相关操作
+	d.xml回写（三种回写格式）
+	
+	
+//是用dom4j如何避免乱码?
+
+	//要保证写入的编码和读取的编码一致.
+		1.写入的编码如何控制?
+			XMLWriter writer = new XMLWriter(new PrintWriter("src/students_copy.xml","UTF-8"),format);
+		2.读取的编码如何控制?
+			<?xml version="1.0" encoding="GBK"?>,其中encoding属性决定了读取时采用什么编码,而encoding属性由format.setEncoding("GBK");控制.
+	//其实要保证不乱码上面的方法太弱了!
+		方法: 使用字节流绝对不会出现乱码!如下:
+		XMLWriter writer = new XMLWriter(new FileOutputStream("src/students_copy.xml"),format);
+
+
+
+注意：使用xpath快速递归查找的时候要加入xpath包支持
+		<dependency>
+			<groupId>jaxen</groupId>
+			<artifactId>jaxen</artifactId>
+			<version>1.1.6</version>
+		</dependency>
+			
+	//1.定义xpath表达式
+	String xpathStr = "//student[@number='student001']";
+	//2.使用xpath查找
+	Element student = (Element) document.selectSingleNode(xpathStr);
+			selectNode（xpathStr)返回多个Element	
+
+	
+			
