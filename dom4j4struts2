@@ -1,0 +1,47 @@
+dom4j目的:可以加载xml文件
+
+引入包：
+commons-logging-1.1.3.jar
+
+dom4j-1.6.1.jar
+
+//例子:模拟加载struts.xml文件
+
+		/************DOM4J读取配置文件***************/
+		try {
+			SAXReader reader = new SAXReader();
+			InputStream resourceAsStream = this.getClass().getResourceAsStream("/struts.xml");
+			Document doc = reader.read(resourceAsStream);
+			
+			//获取根
+			Element root = doc.getRootElement();
+			//得到package
+			Element element_package = root.element("package");
+			
+			//得到所有的action子节点
+			List<Element> element_actions = element_package.elements();
+			for (Element e : element_actions) {
+				ActionMapping actionMapping = new ActionMapping();
+				actionMapping.setName(e.attributeValue("name"));
+				actionMapping.setClassName(e.attributeValue("class"));
+				actionMapping.setMethod(e.attributeValue("method"));
+				
+				//封装等前action所有的result视图
+				Map<String, Result> results = new HashMap<String, Result>();
+				List<Element> ele_action_results = e.elements("result");
+				for (Element ele_result : ele_action_results) {
+					Result result = new Result();
+					result.setName(ele_result.attributeValue("name"));
+					result.setRedirect(ele_result.attributeValue("redirect"));
+					result.setPage(ele_result.getTextTrim());
+					
+					//添加到集合中
+					results.put(result.getName(), result);
+				}
+				actionMapping.setResults(results);
+				
+				allActions.put(actionMapping.getName(), actionMapping);
+			}
+		} catch (DocumentException e) {
+			e.printStackTrace();
+		}
